@@ -1,0 +1,37 @@
+package yl128_pg23.model.cmd;
+
+import common.DataPacketCRAlgoCmd;
+import yl128_pg23.model.ChatRoom;
+import common.ICRCmd2ModelAdapter;
+import common.DataPacketCR;
+
+/**
+ * The command to deal with removing receiver in the lobby
+ * @author Yiqing Lu, Peisheng Guo
+ *  *
+ */
+public class CmdCommRemoveReceiver extends DataPacketCRAlgoCmd<IRemoveReceiverType> {
+	private transient ChatRoom cr;
+	private static final long serialVersionUID = -5473442460103576115L;
+
+	public CmdCommRemoveReceiver(ChatRoom chatRoom) {
+		this.cr = chatRoom;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter cmd2ModelAdpt) {
+	}
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<IRemoveReceiverType> host, String... params) {
+		try {
+			//crMngr.getCR(host.getSender().getUUID()).removeConn(host.getData().getReceiverStub().getUUID());
+
+			cr.removeConn(host.getData().getReceiverStub().getUUID());
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+}

@@ -1,0 +1,13 @@
+package common.datatype.user;
+
+import java.io.Serializable;
+import common.IChatRoom;
+
+/**
+ * Common data type for invitation.
+ * Invite a user to a chat room
+ */
+public interface IInvitationType extends Serializable {
+	public IChatRoom getChatRoom();
+
+}

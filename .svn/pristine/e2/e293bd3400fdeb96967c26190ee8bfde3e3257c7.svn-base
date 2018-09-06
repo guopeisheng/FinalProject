@@ -1,0 +1,7 @@
+package yl128_pg23.game.server.view;
+
+public interface IGameView2ModelAdapter {
+
+	void sendMsgRoom(String text);
+
+}

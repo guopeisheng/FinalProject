@@ -1,0 +1,35 @@
+package yl128_pg23.model.cmd;
+
+import common.DataPacketCRAlgoCmd;
+import common.ICRCmd2ModelAdapter;
+import common.DataPacketCR;
+
+/**
+ * The command to deal with sending the text in the lobby
+ * @author Yiqing Lu, Peisheng Guo
+ *  *
+ */
+public class CmdText extends DataPacketCRAlgoCmd<String> {
+	private static final long serialVersionUID = -3838770341127745921L;
+
+	private transient ICRCmd2ModelAdapter adpt;
+
+	/**
+	* @param iCmd2ModelAdapter
+	*/
+	public CmdText(ICRCmd2ModelAdapter iCmd2ModelAdapter) {
+		this.adpt = iCmd2ModelAdapter;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter adpt) {
+		this.adpt = adpt;
+	}
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<String> host, String... params) {
+		adpt.appendMsg(host.getData(), "Text");
+		return host.getData();
+		//return null;
+	}
+}

@@ -1,0 +1,67 @@
+package yl128_pg23.model.cmd;
+
+import common.DataPacketCRAlgoCmd;
+import common.ICRCmd2ModelAdapter;
+import common.DataPacketCR;
+
+/**
+ * The command to sending the file
+ * @author Yiqing Lu
+ *  *
+ */
+public class CmdFile extends DataPacketCRAlgoCmd<byte[][]> {
+	private static final long serialVersionUID = -3838770341127745921L;
+
+	private transient ICRCmd2ModelAdapter adpt;
+
+	/**
+	* @param c2madpt
+	*/
+	public CmdFile(ICRCmd2ModelAdapter c2madpt) {
+		this.adpt = c2madpt;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter adpt) {
+		this.adpt = adpt;
+
+	}
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<byte[][]> host, String... params) {
+		File dlDir = new File("download/");
+		dlDir.mkdirs();
+		File of = new File("download/" + new String(host.getData()[0]));
+		if (!of.exists()) {
+			try {
+				of.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(of);
+			fos.write(host.getData()[1]);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			fos.flush();
+			fos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		adpt.buildScrollableComponent(new IComponentFactory() {
+			@Override
+			public Component makeComponent() {
+				return new JLabel("File received:[download/" + of.getName() + "]");
+			}
+
+		}, "File");
+
+		return null;
+	}
+}

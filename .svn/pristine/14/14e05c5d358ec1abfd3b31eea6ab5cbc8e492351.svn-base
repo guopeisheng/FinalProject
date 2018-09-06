@@ -1,0 +1,31 @@
+package yl128_pg23.model.cmd;
+
+import common.DataPacketCRAlgoCmd;
+import yl128_pg23.model.ChatRoom;
+import common.ICRCmd2ModelAdapter;
+import common.DataPacketCR;
+
+/**
+ * The command to deal with adding user in the lobby
+ * @author Yiqing Lu, Peisheng Guo
+ *  *
+ */
+public class CmdCommAddReceiver extends DataPacketCRAlgoCmd<IAddReceiverType> {
+	private transient ChatRoom cr;
+	private static final long serialVersionUID = -5473442460103576115L;
+
+	public CmdCommAddReceiver(ChatRoom chatRoom) {
+		this.cr = chatRoom;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter cmd2ModelAdpt) {
+	}
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<IAddReceiverType> host, String... params) {
+		cr.addConn(host.getData().getReceiverStub());
+
+		return null;
+	}
+}

@@ -1,0 +1,50 @@
+package yl128_pg23.model;
+
+import common.IReceiver;
+import java.util.UUID;
+import common.IUser;
+import java.rmi.RemoteException;
+import common.DataPacketCR;
+
+/**
+ * @author Yiqing Lu, Peisheng Guo
+ *  *
+ */
+public class Connect implements IReceiver {
+	private UUID uuid;
+	private ChatRoom cr;
+	private transient IViewAdapter adpt;
+	private transient IUser user;
+
+	@Override
+	public UUID getUUID() throws RemoteException {
+		return uuid;
+	}
+
+	@Override
+	public IUser getUserStub() throws RemoteException {
+		return user;
+	}
+
+	public Connect(ChatRoom cr, IViewAdapter adpt, User user) {
+		this.uuid = UUID.randomUUID();
+		this.cr = cr;
+		this.adpt = adpt;
+		this.user = user;
+	}
+
+	@Override
+	public <T> void receive(DataPacketCR<T> data) throws RemoteException {
+		System.out.println("Received:" + data.getData().getClass());
+		String rtn = data.execute(cr.getCmdMngr());
+		//}
+		//System.out.println("Fire execute");
+		if (rtn != null && rtn.compareTo("DEFAULT") == 0) {
+			data.execute(cr.getCmdMngr());
+		}
+		//
+		//cr.appendMsg(data.execute(cr.getCmdMngr())+"\n");
+
+		// TODO Auto-generated method stub
+	}
+}

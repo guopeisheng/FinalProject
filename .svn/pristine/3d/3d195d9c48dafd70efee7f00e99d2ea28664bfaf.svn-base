@@ -1,0 +1,12 @@
+package yl128_pg23.game.server.datatype;
+
+import java.io.Serializable;
+
+public class GameChatType implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4481392716748512537L;
+
+}

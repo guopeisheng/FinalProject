@@ -1,0 +1,145 @@
+package yl128_pg23.model;
+
+import common.IUser;
+import java.util.List;
+import java.util.UUID;
+import common.IChatRoom;
+import common.DataPacketUser;
+import java.rmi.RemoteException;
+
+/**
+ * The user
+ * @author Yiqing Lu
+ *  *
+ */
+public class User implements IUser {
+	private List<IUser> connectedPeers;
+	private transient IViewAdapter adpt;
+	private String userName;
+	private UUID uuid;
+	private transient ChatRoomManager crMngr;
+
+	public List<String> getConnectedPeersNameList() {
+		List<String> nameList = new ArrayList<String>();
+		for (IUser p : connectedPeers) {
+			nameList.add(getName());
+		}
+		return nameList;
+
+	}
+
+	public void setUserName(String name) {
+		userName = name;
+	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
+
+	@Override
+	public UUID getUUID() {
+		return uuid;
+	}
+
+	@Override
+	public String getName() {
+		return userName;
+	}
+
+	@Override
+	public List<IChatRoom> getChatRooms() {
+		return new ArrayList<IChatRoom>(crMngr.getCRList());
+		//List<ChatRoom> list = crMngr.getCRList();
+		//return new ArrayList<IChatRoom>();
+
+	}
+
+	/**
+	* *
+	*/
+	public ChatWindow createCR() {
+		//crMngr.createCR(new ChatRoom(userName+":"+crMngr.getCRList().size(),cmdMngr));
+		return crMngr.createCR(userName);
+	}
+
+	public User(String name, IViewAdapter adpt) {
+		uuid = UUID.randomUUID();
+		connectedPeers = new ArrayList<IUser>();
+		crMngr = new ChatRoomManager(adpt, this);
+		this.adpt = adpt;
+		userName = name;
+	}
+
+	@Override
+	public void connect(IUser peer) {
+		boolean exists = false;
+		for (IUser p : connectedPeers) {
+			try {
+				if (p.getUUID().equals(peer.getUUID())) {
+					exists = true;
+					break;
+				}
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+		if (!exists) {
+			connectedPeers.add(peer);
+			adpt.addConnPeer(peer);
+		}
+	}
+
+	public boolean leaveCR(ChatWindow cw) {
+		crMngr.leaveCR(cw);
+		//adpt.updateCRs(new ArrayList<IChatRoom>(crMngr.getCRList()));
+		return true;
+	}
+
+	public ChatWindow joinCR(IUser iPeer, IChatRoom cr) {
+		Collection<IChatRoom> clcRooms = null;
+		try {
+			clcRooms = iPeer.getChatRooms();
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}
+		if (clcRooms == null)
+			return null;
+		List<IChatRoom> crList = new ArrayList<IChatRoom>();
+		for (IChatRoom tcr : clcRooms) {
+			crList.add(tcr);
+		}
+		if (crList != null) {
+			IChatRoom targetCR = null;
+			for (IChatRoom c : crList) {
+				if (c.getUUID().equals(cr.getUUID()))
+					targetCR = c;
+			}
+			if (targetCR != null) {
+				//crMngr.createCR(new ChatRoom(targetCR,cmdMngr));
+				return crMngr.createCR(targetCR);
+			}
+		}
+		return null;
+	}
+
+	/**
+	* @param remoteStub
+	* 	 * @return
+	*/
+	public boolean exists(IUser remoteStub) {
+		for (IUser p : connectedPeers) {
+			try {
+				if (p.getUUID().equals(remoteStub.getUUID()))
+					return true;
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public <T> void receive(DataPacketUser<T> data) throws RemoteException {
+	}
+}

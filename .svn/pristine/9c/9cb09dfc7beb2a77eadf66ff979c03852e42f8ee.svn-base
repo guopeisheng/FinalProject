@@ -1,0 +1,25 @@
+package yl128_pg23.model;
+
+import java.util.UUID;
+
+/**
+ * @author Gao Pan
+ *  *
+ */
+public interface IChatRoomAdapter {
+	public String getTitle();
+
+	/**
+	* @return
+	*/
+	public UUID getUUID();
+
+	/**
+	* @param i
+	* 	 * @param text
+	*/
+	public void sendDataPacket(String string, String content);
+
+	public void addGame();
+
+}

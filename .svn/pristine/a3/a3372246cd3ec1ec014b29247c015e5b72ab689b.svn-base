@@ -1,0 +1,17 @@
+package yl128_pg23.model;
+
+import java.awt.Component;
+import java.util.List;
+
+/**
+ * @author Yiqing Lu, Peisheng Guo
+ *  *
+ */
+public interface IChatWindowAdapter {
+	public void updateMsg(String msgText);
+
+	public void popWindow(Component c);
+
+	public void updateUser(List<IReceiver> conns);
+
+}

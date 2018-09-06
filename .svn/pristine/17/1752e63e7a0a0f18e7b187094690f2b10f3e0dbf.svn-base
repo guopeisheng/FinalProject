@@ -1,0 +1,76 @@
+package yl128_pg23.game.server.cmd;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.swing.SwingUtilities;
+
+import common.DataPacketCR;
+import common.DataPacketCRAlgoCmd;
+import common.ICRCmd2ModelAdapter;
+import common.IChatRoom;
+import common.IReceiver;
+import yl128_pg23.game.server.controller.GameController;
+import yl128_pg23.game.server.datatype.AddGameMessageType;
+
+public class AddGameMessageCmd extends DataPacketCRAlgoCmd<AddGameMessageType> {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 455333575494285643L;
+
+	private transient ICRCmd2ModelAdapter cmd2ModelAdapter;
+
+	/**
+	 *  May want larger or different type of blocking queue
+	 */
+	private BlockingQueue<Runnable> bq = new LinkedBlockingQueue<Runnable>(5);
+
+	private IChatRoom cr;
+
+	private IReceiver receiver;
+
+	public AddGameMessageCmd(IChatRoom cr, IReceiver receiver) {
+		this.cr = cr;
+		this.receiver = receiver;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter cmd2ModelAdpt) {
+		this.cmd2ModelAdapter = cmd2ModelAdpt;
+	}
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<AddGameMessageType> host, String... params) {
+		// TODO Auto-generated method stub
+		//start game MVC
+		final GameController[] c = new GameController[1]; // One-element array trick to get around the "final"
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() { // Must use invokeAndWait, not invokeLater so that controller will be a valid instance when the job processing loop starts below.
+				public void run() {
+					c[0] = new GameController(receiver, cr); // Controller, incl. GUI, is constructed on GUI thread
+					c[0].start(); // Always show the GUI on the GUI thread.
+				}
+			});
+		} catch (InvocationTargetException | InterruptedException e1) {
+			System.err.println("main(): Exception in instantiating controller = " + e1);
+			e1.printStackTrace();
+		}
+
+		// Go into infinite loop, waiting for Runnable jobs to perform on the main thread.
+		while (true) {
+			try {
+				System.out.println("Waiting for main thread jobs..");
+				Runnable r = bq.take(); // Pull the next available job out of the queue, otherwise block
+				System.out.println("Found and now running job: " + r);
+				r.run(); // Run the job.
+			} catch (InterruptedException e) {
+				System.err.println("Exception in blocking queue: " + e);
+				e.printStackTrace();
+			}
+		}
+	}
+
+}

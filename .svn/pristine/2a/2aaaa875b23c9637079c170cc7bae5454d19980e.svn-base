@@ -1,0 +1,34 @@
+package yl128_pg23.model;
+
+import common.IUser;
+import java.util.List;
+
+/**
+ * @author Yiqing Lu, Peisheng Guo
+ *  *
+ */
+public interface IViewAdapter {
+	/**
+	* *
+	*/
+	public void updateMsg();
+
+	public void addConnPeer(IUser Peer);
+
+	/**
+	* @param cr
+	*/
+	public void addConnCR(ChatRoom cr);
+
+	/**
+	* @param connCRs 
+	* 	 *
+	*/
+	public void updateCRs(List<IChatRoom> connCRs);
+
+	/**
+	* @param connectedPeers
+	*/
+	public void updatePeers(List<IUser> connectedPeers);
+
+}

@@ -1,0 +1,99 @@
+package yl128_pg23.game.server.controller;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import gov.nasa.worldwind.geom.Position;
+import javax.swing.SwingUtilities;
+
+import common.IChatRoom;
+import common.IReceiver;
+import map.IRightClickAction;
+import map.MapLayer;
+import yl128_pg23.game.server.model.IGameModel2ViewAdapter;
+import yl128_pg23.game.server.model.MapModel;
+import yl128_pg23.game.server.model.Place;
+import yl128_pg23.game.server.view.AppFrame;
+import yl128_pg23.game.server.view.AppStartFrame;
+import yl128_pg23.game.server.view.GameView;
+import yl128_pg23.game.server.view.IAppStart2Controller;
+import yl128_pg23.game.server.view.IGameView2ModelAdapter;
+import yl128_pg23.game.server.view.IView2ModelAdapter;
+
+/**
+ * @author Yiqing Lu, Peisheng Guo
+ *
+ */
+
+public class GameController {
+
+	private GameView _view;
+	private MapModel _model;
+	private IReceiver receiver;
+	private IChatRoom cr;
+
+	public GameController(IReceiver receiver, IChatRoom cr) {
+		makeMapMVC();
+		this.receiver = receiver;
+		this.cr = cr;
+	}
+
+	public void makeMapMVC() {
+
+		_view = new GameView(new IGameView2ModelAdapter() {
+
+			@Override
+			public void sendMsgRoom(String text) {
+				// TODO Auto-generated method stub
+				_model.sendMsgRoom(text);
+			}
+
+		});
+		_model = new MapModel(new IGameModel2ViewAdapter() {
+
+			@Override
+			public void addPlace(Place p) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void show(MapLayer layer) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void hide(MapLayer layer) {
+				// TODO Auto-generated method stub
+
+			}
+
+		}, receiver, cr);
+	}
+
+	public void startMap() {
+		_view.start();
+		_model.start();
+	}
+
+	public void start() {
+		_view.start();
+	}
+
+	/**
+	 * Run the given Runnable job on the main thread.
+	 * @param r   The Runnable job to run
+	 */
+	public void runJob(Runnable r) {
+		try {
+			bq.put(r); // Put job into the queue, blocking if out of space
+		} catch (InterruptedException e) {
+			System.out.println("runJob(): Exception putting job into blocking queue = " + e);
+			e.printStackTrace();
+		}
+	}
+
+	private BlockingQueue<Runnable> bq = new LinkedBlockingQueue<Runnable>(5); // May want larger or different type of blocking queue
+
+}

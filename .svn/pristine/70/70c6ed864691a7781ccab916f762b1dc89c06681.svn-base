@@ -1,0 +1,57 @@
+package yl128_pg23.model.cmd;
+
+import common.DataPacketCRAlgoCmd;
+import common.IReceiver;
+import provided.datapacket.DataPacketAlgo;
+import common.ICRCmd2ModelAdapter;
+import common.DataPacketCR;
+
+/**
+ * The command to deal with requesting the command
+ * @author Yiqing Lu, Peisheng Guo
+ *  *
+ */
+public class CmdCommRequestCmd extends DataPacketCRAlgoCmd<IRequestCmdType> {
+	private transient IReceiver recv;
+	private DataPacketAlgo<String, String> cmdMngr;
+	private static final long serialVersionUID = -5473442460103576115L;
+
+	public CmdCommRequestCmd(DataPacketAlgo<String, String> cmdMngr, IReceiver recv) {
+		this.recv = recv;
+		this.cmdMngr = cmdMngr;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter cmd2ModelAdpt) {
+	}
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<IRequestCmdType> host, String... params) {
+		DataPacketCRAlgoCmd<?> cmd = (DataPacketCRAlgoCmd<?>) cmdMngr.getCmd(host.getData().getCmdId());
+		//System.out.println(cmd);
+		//		System.out.println(cmd.getClass());
+		try {
+			//System.out.println("Call Install");
+			host.getSender()
+					.receive(new DataPacketCR<ICRInstallCmdType>(ICRInstallCmdType.class, new ICRInstallCmdType() {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public DataPacketCRAlgoCmd<?> getCmd() {
+							return (DataPacketCRAlgoCmd<?>) cmd;
+						}
+
+						@Override
+						public Class<?> getCmdId() {
+							return host.getData().getCmdId();
+						}
+
+					}, recv));
+			//crMngr.getCR(host.getSender().getUUID()).addConn(host.getData().getReceiverStub());
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+}

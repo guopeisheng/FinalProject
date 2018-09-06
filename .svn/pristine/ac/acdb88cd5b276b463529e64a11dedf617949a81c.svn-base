@@ -1,0 +1,36 @@
+package yl128_pg23.model.cmd;
+
+import common.DataPacketCRAlgoCmd;
+import provided.datapacket.DataPacketAlgo;
+import common.ICRCmd2ModelAdapter;
+import common.IReceiver;
+import common.DataPacketCR;
+
+/**
+ * The command to deal with installing command
+ * @author Yiqing Lu
+ *  *
+ */
+public class CmdCommInstallCmd extends DataPacketCRAlgoCmd<ICRInstallCmdType> {
+	private DataPacketAlgo<String, String> cmdMngr;
+	private transient ICRCmd2ModelAdapter adpt;
+	private static final long serialVersionUID = -5473442460103576115L;
+
+	public CmdCommInstallCmd(DataPacketAlgo<String, String> cmdMngr, IReceiver recv, ICRCmd2ModelAdapter c2madpt) {
+		//this.recv = recv;
+		this.cmdMngr = cmdMngr;
+		this.adpt = c2madpt;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter cmd2ModelAdpt) {
+	}
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<ICRInstallCmdType> host, String... params) {
+		DataPacketCRAlgoCmd<?> cmd = host.getData().getCmd();
+		cmd.setCmd2ModelAdpt(adpt);
+		cmdMngr.setCmd(host.getData().getCmdId(), cmd);
+		return null;
+	}
+}

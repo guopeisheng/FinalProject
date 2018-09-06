@@ -1,0 +1,27 @@
+package yl128_pg23.game.server.cmd;
+
+import common.DataPacketCR;
+import common.DataPacketCRAlgoCmd;
+import common.ICRCmd2ModelAdapter;
+import common.ICmd2ModelAdapter;
+import provided.mixedData.MixedDataKey;
+import yl128_pg23.game.server.datatype.GameChatType;
+
+public class GameChatMessageCmd extends DataPacketCRAlgoCmd<GameChatType> {
+
+	private transient ICRCmd2ModelAdapter cmd2ModelAdapter;
+
+	@Override
+	public String apply(Class<?> index, DataPacketCR<GameChatType> host, String... params) {
+		// TODO Auto-generated method stub
+
+		return null;
+	}
+
+	@Override
+	public void setCmd2ModelAdpt(ICRCmd2ModelAdapter cmd2ModelAdpt) {
+		// TODO Auto-generated method stub
+		this.cmd2ModelAdapter = cmd2ModelAdpt;
+	}
+
+}

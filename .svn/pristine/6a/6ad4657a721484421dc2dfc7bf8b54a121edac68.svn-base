@@ -1,0 +1,14 @@
+package common.datatype;
+
+import java.io.Serializable;
+
+/**
+ * Common data type for sending failure status
+ * @param <T> the type of data packet
+ */
+public interface IFailureStatusType<T extends DataPacket<?, ?>> extends Serializable {
+	public T getOriginalData();
+
+	public String getFailureInfo();
+
+}

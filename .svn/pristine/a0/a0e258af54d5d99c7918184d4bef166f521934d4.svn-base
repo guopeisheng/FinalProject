@@ -1,0 +1,13 @@
+package yl128_pg23.game.server.datatype;
+
+import java.io.Serializable;
+
+public class AddGameMessageType implements Serializable{
+
+	/**
+	 * Compiler generated unique ID
+	 */
+	private static final long serialVersionUID = -1910338096932711898L;
+
+	
+}

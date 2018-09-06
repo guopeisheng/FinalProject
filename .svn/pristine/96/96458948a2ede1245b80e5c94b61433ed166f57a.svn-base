@@ -1,0 +1,303 @@
+package yl128_pg23.game.server.view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+
+import gov.nasa.worldwind.Configuration;
+import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.render.AnnotationAttributes;
+import gov.nasa.worldwind.render.ScreenRelativeAnnotation;
+import gov.nasa.worldwind.util.WWUtil;
+import map.MapLayer;
+import map.MapPanel;
+
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.Timer;
+import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+/**
+ * The game view of the game
+ * @author Yiqing Lu, Peisheng Guo
+ *
+ */
+
+public class GameView extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+
+	IGameView2ModelAdapter iGameView2ModelAdapter;
+
+	public JPanel contentPane;
+
+	private MapView map;
+
+	private JTextField textFieldUpper;
+
+	private JTextField textField_1;
+
+	private JSplitPane splitPaneLeft = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+	private JSplitPane splitPaneUpper = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+	private JSplitPane splitPaneLower = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+	private JTextArea textArea = new JTextArea();
+
+	private JTextArea textArea_3 = new JTextArea();
+
+	private JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+
+	private JLabel lblNewLabel;
+
+	private AnnotationAttributes defaultAttributes = new AnnotationAttributes();
+
+	private ScreenRelativeAnnotation hint;
+
+	private Timer timer;
+	private int time;
+	private final JLabel label = new JLabel("");
+
+	public GameView(IGameView2ModelAdapter iGameView2ModelAdapter) {
+		this.iGameView2ModelAdapter = iGameView2ModelAdapter;
+		this.initGUI();
+	}
+
+	public void initGUI() {
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(300, 300, 1050, 800);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(new BorderLayout(0, 0));
+		setContentPane(contentPane);
+
+		map = new MapView();
+
+		JPanel panel = new JPanel();
+		panel.setToolTipText("The panel to hold the button");
+		contentPane.add(panel, BorderLayout.SOUTH);
+
+		JLabel lblRemainingTime = new JLabel("Remaining Time:");
+		panel.add(lblRemainingTime);
+
+		lblNewLabel = new JLabel("");
+		lblNewLabel.setToolTipText("The remaining time on this round will show here.");
+		panel.add(lblNewLabel);
+
+		JSplitPane splitPane = new JSplitPane();
+		contentPane.add(splitPane, BorderLayout.CENTER);
+		splitPane.setRightComponent(map);
+		splitPane.setResizeWeight(0.2);
+		splitPaneLeft.setToolTipText("The big panel to hold chatrooms");
+
+		splitPane.setLeftComponent(splitPaneLeft);
+		splitPaneLeft.setResizeWeight(0.4);
+
+		tabbedPane.setToolTipText("The tab panel to hold chatrooms");
+
+		splitPaneLeft.setRightComponent(tabbedPane);
+
+		JPanel panel_3 = new JPanel();
+		panel_3.setPreferredSize(new Dimension(200, 768));
+		tabbedPane.addTab("Game", null, panel_3, null);
+		panel_3.setLayout(null);
+
+		JButton button = new JButton("Ready");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		button.setBounds(32, 64, 160, 33);
+		button.setToolTipText("Choose a team(color) and press this button to tell others you are ready.");
+		button.setPreferredSize(new Dimension(150, 30));
+		panel_3.add(button);
+
+		JLabel label_1 = new JLabel("Total Players:");
+		label_1.setBounds(32, 156, 124, 33);
+		label_1.setPreferredSize(new Dimension(150, 30));
+		panel_3.add(label_1);
+
+		JLabel label_2 = new JLabel("0");
+		label_2.setBounds(32, 189, 92, 33);
+		panel_3.add(label_2);
+
+		JLabel label_3 = new JLabel("Ready Players:");
+		label_3.setBounds(32, 234, 130, 33);
+		label_3.setPreferredSize(new Dimension(150, 30));
+		panel_3.add(label_3);
+
+		JLabel label_4 = new JLabel("0");
+		label_4.setBounds(32, 279, 92, 33);
+		panel_3.add(label_4);
+
+		JButton button_1 = new JButton("Place");
+		button_1.setBounds(32, 372, 150, 33);
+		button_1.setToolTipText("Once everyone is ready, press this button to start the game.");
+		button_1.setPreferredSize(new Dimension(150, 30));
+		button_1.setEnabled(false);
+		panel_3.add(button_1);
+
+		JLabel label_5 = new JLabel("Remaining Time:");
+		label_5.setBounds(43, 430, 169, 33);
+		panel_3.add(label_5);
+
+		JButton button_2 = new JButton("Finish");
+		button_2.setBounds(32, 543, 150, 33);
+		button_2.setToolTipText("Once everyone is ready, press this button to start the game.");
+		button_2.setPreferredSize(new Dimension(150, 30));
+		button_2.setEnabled(false);
+		panel_3.add(button_2);
+		label.setToolTipText("The remaining time on this round will show here.");
+		label.setBounds(182, 455, 30, -17);
+
+		panel_3.add(label);
+
+		// Add global chat room onto the panel
+		tabbedPane.addTab("To EveryOne", splitPaneLower);
+		tabbedPane.addTab("Within Team", splitPaneUpper);
+
+		JScrollPane scrollPane = new JScrollPane();
+		splitPaneUpper.setLeftComponent(scrollPane);
+		textArea_3.setToolTipText("The world chatroom");
+		textArea.setToolTipText("The global chatroom");
+		scrollPane.setViewportView(textArea_3);
+
+		JPanel panel_1 = new JPanel();
+		panel_1.setToolTipText("The panel to hold the button and text messages");
+		splitPaneUpper.setRightComponent(panel_1);
+		splitPaneUpper.setResizeWeight(0.9);
+
+		textFieldUpper = new JTextField();
+		textFieldUpper.setToolTipText("The text box for input a text message");
+		panel_1.add(textFieldUpper);
+		textFieldUpper.setColumns(10);
+
+		JButton btnSendUpper = new JButton("Send");
+		btnSendUpper.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				iGameView2ModelAdapter.sendMsgRoom(textFieldUpper.getText());
+				textFieldUpper.setText("");
+			}
+		});
+
+		btnSendUpper.setToolTipText("The button to send out the messages");
+		panel_1.add(btnSendUpper);
+
+		JScrollPane scrollPane_1 = new JScrollPane();
+		splitPaneLower.setLeftComponent(scrollPane_1);
+		splitPaneLower.setResizeWeight(0.9);
+		scrollPane_1.setViewportView(textArea);
+
+		JPanel panel_2 = new JPanel();
+		panel_2.setToolTipText("The panel to hold the button and text messages.");
+		splitPaneLower.setRightComponent(panel_2);
+
+		textField_1 = new JTextField();
+		textField_1.setToolTipText("The box to input the messages");
+		panel_2.add(textField_1);
+		textField_1.setColumns(10);
+
+		JButton btnSend = new JButton("Send");
+		btnSend.setToolTipText("The send button to send out the messages");
+
+		panel_2.add(btnSend);
+		textArea_3.setEditable(false);
+		textArea.setEditable(false);
+	}
+
+	public void start() {
+		map.start();
+		setVisible(true);
+		textArea.append("Welcome to our Game! \n");
+
+		// Configure the initial view parameters so that the browser balloon is centered in the viewport.
+		Configuration.setValue(AVKey.INITIAL_LATITUDE, 60);
+		Configuration.setValue(AVKey.INITIAL_LONGITUDE, -85);
+		Configuration.setValue(AVKey.INITIAL_ALTITUDE, 9500000);
+		Configuration.setValue(AVKey.INITIAL_PITCH, 45);
+
+		// Initialize defaultAttributes
+		this.defaultAttributes.setBackgroundColor(new Color(0f, 0f, 0f, 0f));
+		this.defaultAttributes.setTextColor(Color.RED);
+		this.defaultAttributes.setLeaderGapWidth(14);
+		this.defaultAttributes.setCornerRadius(0);
+		this.defaultAttributes.setSize(new Dimension(300, 0));
+		this.defaultAttributes.setAdjustWidthToText(AVKey.SIZE_FIT_TEXT); // use strict dimension width - 200
+		this.defaultAttributes.setFont(Font.decode("Arial-BOLD-24"));
+		this.defaultAttributes.setBorderWidth(0);
+		this.defaultAttributes.setHighlightScale(1); // No highlighting either
+		this.defaultAttributes.setCornerRadius(0);
+
+		Dimension size = new Dimension(1200, 800);
+		this.setPreferredSize(size);
+		this.pack();
+		WWUtil.alignComponent(null, this, AVKey.CENTER);
+
+		this.getLayeredPane().update(map.getWWD().getGraphics());
+
+		//initTimer(2);
+
+	}
+
+	public void initTimer(int minute) {
+		// Stop previous work if exists
+		if (this.timer != null) {
+			this.timer.stop();
+		}
+		// Display the initial time
+		this.time = minute * 60;
+		lblNewLabel.setText(getStandardTime(this.time));
+		this.timer = new Timer(1000, (e) -> {
+			this.time -= 1;
+			if (this.time >= 0) {
+				lblNewLabel.setText(getStandardTime(this.time));
+				// Set the color of words to be red, if less than 30 seconds are left.
+				if (this.time == 30) {
+					lblNewLabel.setForeground(Color.red);
+				}
+			}
+		});
+		// Start the timer
+		this.timer.start();
+	}
+
+	private String getStandardTime(int num) {
+		return " " + Integer.toString(num / 60) + " : " + Integer.toString(num % 60);
+	}
+
+	public void appendToGlobal(String info) {
+		this.textArea.append(info + "\n");
+	}
+
+	public void appendToTeamChat(String info) {
+		this.textArea_3.append(info + "\n");
+	}
+
+	public void alert(String msg) {
+		JOptionPane.showMessageDialog(null, msg);
+	}
+
+	/**
+	 * The method to add another map layers
+	 * @param _layer the map layer to be added
+	 */
+	public void addMapLayer(MapLayer _layer) {
+		map.addLayer(_layer);
+	}
+}

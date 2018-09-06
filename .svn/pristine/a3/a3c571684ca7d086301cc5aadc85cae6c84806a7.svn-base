@@ -1,0 +1,11 @@
+package yl128_pg23.game.server.view;
+
+public interface IAppStart2Controller {
+
+	void makeMap();
+
+	void startMap();
+
+	void runJob(Runnable runnable);
+
+}

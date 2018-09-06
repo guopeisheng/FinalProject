@@ -1,0 +1,107 @@
+package yl128_pg23.model;
+
+import java.util.List;
+import java.util.Set;
+import common.IChatRoom;
+import java.util.UUID;
+
+/**
+ * @author Gao Pan
+ *  *
+ */
+public class ChatRoomManager {
+	private transient List<ChatRoom> connCRs;
+	private IViewAdapter adpt;
+	private User user;
+	private Set<Connect> selfReceiverHolder;
+
+	/**
+	* @return
+	*/
+	public List<ChatRoom> getCRList() {
+		return connCRs;
+	}
+
+	public ChatWindow createCR(String userName) {
+		ChatRoom new_room = new ChatRoom(userName + ":" + connCRs.size(), this);
+		return initCR(new_room);
+	}
+
+	/**
+	* *
+	*/
+	public void shutdown() {
+		for (ChatRoom cr : connCRs) {
+			cr.leave();
+		}
+
+	}
+
+	public ChatRoomManager(IViewAdapter adpt, User user) {
+		connCRs = new ArrayList<ChatRoom>();
+		this.adpt = adpt;
+		this.user = user;
+		selfReceiverHolder = new HashSet<Connect>();
+	}
+
+	/**
+	* @param cw
+	*/
+	public void leaveCR(ChatWindow cw) {
+		ChatRoom target = null;
+		for (ChatRoom cr : connCRs) {
+			if (cr.getUUID().equals(cw.getUUID())) {
+				target = cr;
+			}
+		}
+		if (target != null) {
+			target.leave();
+			connCRs.remove(target);
+		}
+	}
+
+	/**
+	* @param chatRoom 
+	* 	 *
+	*/
+	public ChatWindow createCR(IChatRoom cr) {
+		for (ChatRoom c : connCRs) {
+			if (c.getUUID().equals(cr.getUUID()))
+				return null;
+		}
+		return initCR(new ChatRoom(cr, this));
+	}
+
+	private ChatWindow initCR(ChatRoom cr) {
+		IReceiver conn = null;
+		try {
+			Connect new_conn = new Connect(cr, adpt, user);
+			selfReceiverHolder.add(new_conn);
+			conn = (IReceiver) UnicastRemoteObject.exportObject(new_conn, 0);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		if (conn != null) {
+			ChatRoomControl crc = new ChatRoomControl(cr);
+			cr.setSelf(conn);
+			connCRs.add(cr);
+			return crc.getChatWindow();
+			//adpt.addConnCR(cr);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	* @param uuid
+	* 	 * @return
+	*/
+	public ChatRoom getCR(UUID uuid) {
+		for (ChatRoom cr : connCRs) {
+			if (cr.getUUID().equals(uuid))
+				return cr;
+		}
+		return null;
+	}
+
+}
